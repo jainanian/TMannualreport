@@ -1,0 +1,431 @@
+---
+runtime: shiny
+output: bookdown::html_document2
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggwordcloud)
+library(data.table)
+library(shinyWidgets)
+library(bookdown)
+library(viridisLite)
+library(viridis)
+library(leaflet)
+library(DT)
+library(rpivotTable)
+catable <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vScyWcFUAjCGcT1I40iV4vlzSHav8y-EyFFML9HEwZm3zlI664ao9MZvf7ffRmJrwZcRLoc_oncQ8Rk/pub?gid=2008747021&single=true&output=csv")
+capublish <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vRNolReLM9mYXHbs0x_WJkVceqJ3G1Z_QRHVy0I70HIQoKCH85jdAzmifRohafZ_1Cvnydy59gr5687/pub?gid=269004399&single=true&output=csv")
+#grant_words <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vSREXL5koXWmdBOaWrGPjJWxpfKUR1zebYlNT9ZLaLXElNCWdr0JnlpZUFjubXyRcIT8Q81D3MbRD_m/pub?output=csv")
+#grant_funding <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqtChess-n2tShQy0HqyFgpGCx_l2mRzTFMhZJb4oSFslSmxR5EJ8ZEBeEfIX79LL7Wqa2nV045I1z/pub?output=csv")
+tm_activities <-fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vQdbxWsAbQjHmxrKFZXjOFAULlnoJ26daOJ9rrAy1fg8JSzhrWWBBMPYE_yuF2YIgg2AEhsyLi8--x_/pub?output=csv")
+gd_funding <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vQqtChess-n2tShQy0HqyFgpGCx_l2mRzTFMhZJb4oSFslSmxR5EJ8ZEBeEfIX79LL7Wqa2nV045I1z/pub?output=csv")
+ca_tablefunding <- fread("https://docs.google.com/spreadsheets/d/e/2PACX-1vQ6x40wPr311zvVvypVXIE-Qv1HTzljI8fpa9ATlr7rj8qpduUW1tKdWv9lfP9W2GF5yUWlI-Cn0jNr/pub?output=csv")
+
+cats_df <- data.frame(
+				typestem = c("transport", "market", "research", "grant") ,
+				labels = c("Transportation", "Marketing", "Research", "Grant")
+				)
+
+  function(col, alpha = FALSE) {
+  
+  mat <- grDevices::col2rgb(col, alpha = TRUE)
+  if (alpha) {
+    hx <- grDevices::rgb(mat[1, ]/255, mat[2, ]/255,
+                         mat[3, ]/255, mat[4, ]/255)
+  } else {
+    hx <- grDevices::rgb(mat[1, ]/255, mat[2, ]/255, mat[3, ]/255)
+  }
+  return(hx)
+  
+}
+
+atlasbins <-  tm_activities$labels %>% unique()
+atlaspal <- colorFactor(palette = viridis_pal(option = "plasma",begin = .4,  end = 1)(atlasbins %>% length()), domain =atlasbins)
+
+#for tomorrow: adjust height of leaflet
+# add pivot plot of grants funding 
+#add pivot plot of cooperative agreements
+
+```
+
+# TM Annual Report FY2019 {.tabset .tabset-fade .tabset-pills} 
+AMS Transportation and Marketing Program
+
+
+## Who we are: {.tabset } 
+
+### Leadership, Oversight, & Direction
+The Transportation and Marketing Program (TM) provides national leadership in developing, coordinating, and integrating Program goals and objectives with the efforts of other federal, state and local government entities, as well as industrial and university partners. provides expert advice and guidance related to agricultural transportation, local food, and grants management issues that assist in formulating broad support and planning for agricultural transportation and local and regional food infrastructure and further development needs.  
+
+TM oversees research and analysis related to the transportation of agricultural goods  nationally and internationally, marketing research, analysis and technical assistance for local and regional food systems. Additionally, the Program administers Agricultural Marketing Service grant programs—the Federal State Market Improvement Program (FSMIP), the Specialty Crop Block Grant Program (SCBGP), the Specialty Crop Multi-State Program (MSCP), and the Farmers Market and Local Foods Promotion Program (FMLFPP). The program is also responsible for providing direction and overall management of the USDA Farmers Market as well as various AMS Outreach efforts to traditionally under-served and under-represented national groups and agricultural businesses/organizations.  
+
+TM is made up of five divisions:  
+- Marketing Services Division (MSD)  
+- Grants Division (GD)  
+- Transportation Services Division (TSD)  
+- Creative Services Group (CSG)  
+- Office of the Deputy Administrator (ODA)
+
+### What we do - Plan, Develop & Promote
+TM represents the Agency and Department at various public and private meetings that advance the mission of the Agency/Department while establishing and maintaining relationships with Federal and State agencies, producer- and trade-related organizations, and other stakeholder groups regarding the full range of activities and functions performed by the Transportation and Marketing Program. TM is also committed to maintaining open and transparent channels of communication with external stakeholders and incorporating expressed ideas into program services. This is evidenced by the educational presentations on issues related to agricultural transportation issues, local and regional food marketing and distribution systems AMS grant programs, as well as agricultural education through the USDA Farmers Market.  
+
+TM plans and manages all activity related to the facilitation of the USDA Farmers Market (FM), which is wholly sponsored by AMS.  This oversight includes the recruitment of vendors, utilizing a transparent application process, and the establishment of market rules and guidelines. Additional FM priorities include promoting market and food safety, as well as healthy eating through interactive training and education. The FM serves as a "living laboratory" for farmer market operations across the country and TM is proud of the contributions it has made to the DC and surrounding communities via donations and educational opportunities.  
+
+Internally, TM relies on the Creative Services Group (CSG) as its Public Affairs Liaison. The group develops content and spearheads design for the TM website while working closely with the Public Affairs (PA) office through a variety of communications functions originating from the program level. In addition to their external communications coordination with PA, the CSG provides professional writing, design, and editing services to the Deputy Administrator and all TM staff. The CSG also leads employee engagement planning and, as such, is integral to the facilitation of TM’s employee engagement activities which are created to ensure the creation and maintenance of productive professional relationships.  
+
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px;}
+</style>
+<div class = "blue">
+<center>
+**TM Mission:**  
+To facilitate the marketing and transportation of U.S. agricultural products locally, nationally, and internationally,  
+through data analyses, grants, and outreach
+</div>   
+</center>
+
+
+## TM FY2019 Highlights {.tabset}
+
+### Leading Change
+In FY2019, TM continued to play a role in changing the American agricultural landscape in various ways by helping American farmers move and market agricultural products; by developing an innovative [open data platform](https://agtransport.usda.gov/) for stakeholders to access critical agricultural transport data; regularly convening agricultural transport and marketing leaders to share technical services and guidance; and becoming a USDA model for grant administration and program evaluation.  
+
+TM’s Transportation Services Division (TSD) led the charge, in FY2019, to enhance systems of transport for farmers moving their products domestically and overseas, by creating a data sharing platform to support the agricultural transport industry. The [Open Ag Transport Data Platform](https://agtransport.usda.gov/), allows users access and analyze the most recent data on agricultural transport by rail, truck, barge, and ocean. To date, the platform has had 3,000 unique users, 6,400 unique site visits, and 29,000 pageviews, with usage expected to double next year. It was recognized by MRP Administrator Greg Ibach at the 2019 AMS awards ceremony.  
+
+TM’s takes pride in its efforts to keep stakeholders abreast of industry innovation as well as current data which can used to inform changes in agricultural transportation policies and methods. Published weekly, the Grain Transportation Report and datasets provides current information on rail, sea and land transportation, and includes policy updates, requests for stakeholder comments on proposed rules, and related topics. In FY2019, TSD published five reports on ag transport issues, the monthly Biofuel Transportation Database, and four reports on commodities and infrastructure. In addition, four cooperative agreement studies were published (see Highlights/Results Driven), one of which, the Inland Waterways Study, was [used by the USDA Secretary](https://www.ams.usda.gov/press-release/secretary-perdue-assistant-secretary-army-civil-works-james-highlight-importance) to brief agricultural waterways stakeholders at the Melvin Price Locks and Dam in Illinois, in August, 2019.  
+
+In the areas of agricultural transport and agricultural marketing, FY2019 saw TM bringing together stakeholders for resource and information sharing, and as representatives of U.S. federal interests at international meetings. TM TSD represented the USDA at multiple meetings in FY2019 including the surface transportation infrastructure strategy meeting for agricultural trucking at the U.S. Department of Transportation and the 60th Annual Transportation Research Forum. TM also represented USDA at the U.S. Committee on the Marine Transport System meeting, the U.S. Soy Global Exchange and Specialty Grains Conference, and United Nations Economic Commission for Europe Working Party on the Transport of Perishable Foodstuffs.   
+
+TM remained proactive in information sharing and making resources available to state and local agriculture leaders.  As a part of this effort, TM convened 37 state departments of agriculture coordinators at the Specialty Crop Block Grant (SCBGP) State Coordinators Conference. Coordinators participated in workshops and discussions focusing on how to enhance the impact of SCBGP research and marketing, shared best practices and successful grant models, and met with TM staff who provided administrative and marketing advice.  
+
+```{r echo=FALSE, out.width="100%", fig.align='center', fig.cap="Top left, clockwise: 1) TM’s Grants Division Director John Mikozek shares information to state coordinators about updates to SCBGP from the 2018 Farm Bill. Also pictured: SCBGP grants management specialists, Jarett Ponsole and Gabriella Hill. 2) Acting Deputy Director Tricia Kovacs presents information about food safety certification, like Good Agricultural Practices, that the USDA works with farmer groups to attain. 3) Grants team lead Martin Rosier talks with a SCBGP state agricultural coordinator, who in addition to managing the SCBGP in her state, can also receive the Federal State Marketing Improvement Program (FSMIP) grant. 4) As part of the conference, TM also highlighted for state coordinators best practice models by grant recipients. SCBGP grant recipient, University of D.C., shares information about the rooftop garden atop one of its university buildings. Also pictured: Grants Deputy Director Nicole Nelson Miller, Dewell Paez-Delgado, and Kim Harmon."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_scbgp summit 4panel.png")
+
+```
+
+```{r echo=FALSE, out.width="75%", fig.align='center', fig.cap="SCBGP recipient University of DC also showed off its hydroponic leafy greens garden to state agriculture coordinators. Above, grants management specialist Annie Ceccarini (a gardener herself) peers into a planter."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/2019022_SCBGPcoord__greenhouse%20tour%20Annie.jpg")
+```
+
+TM also supported agricultural marketing practitioners, including extension agents, food system planners, and researchers, through the publication of toolkits and reports. According to the most recent Census of Agriculture, direct sales to consumers per farm increased from $9,000 to $22,000 from 2012 to 2017. In support of the farmers and their food systems producing these increases, TM published three cooperative agreement studies, which cover new and beginning urban farmer outreach, best practices for local and regional meat processing, and maximizing farm sales and market viability through federal programs (see Highlights/Results-Driven for more information).  
+
+```{r echo=FALSE, out.width="75%", fig.align='center', fig.cap="Agricultural Marketing Specialist Samantha Schaffstall (middle) led a cooperative agreement study by the Washington State Farmers Market Association and Washington State University to target food access programs to boost farm sales and farmers market viability."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/ca_schaffstall fm market access CA.png")
+```
+
+TM also led support for agricultural markets through cross-federal economic development efforts, including the EPA-led Local Foods, Local Places initiative. In FY2019, staff provided food system planning consultation and architectural design in 14 workshops for local governments and community organizations, over 80% taking place in highly rural areas (under 50,000 in population). In total, TM delivered 47 architectural design projects, including full 3D-rendered models, 1800 information requests and updates to its 3 local foods directories, and 30 workshops to more than 1500 in-person and virtual participants.
+
+```{r mapleaflet, fig.align="center", echo = FALSE, fig.cap="Staff presented information, networked with colleagues, researchers, and grant recipients, and learned the latest research at more than 120 events (mapped above) in the U.S. and abroad."}
+#knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_TM activities.png")
+
+inputPanel(
+  selectInput("labeltype", label = "Type of Activity:",
+              choices = (tm_activities %>% arrange(labels))$labels %>% unique(), 
+              selected = (tm_activities %>% arrange(labels))$labels %>% unique(), 
+              multiple = TRUE)
+)
+renderLeaflet({
+  
+m <-     leaflet(height=2000, width=2000) %>% addProviderTiles(providers$CartoDB.DarkMatter) %>% setView(lng = -98.583, lat = 39.833, zoom = 2)
+
+		m %>% 
+        addCircles(
+			data = tm_activities %>% filter(labels %in% input$labeltype),
+          fillOpacity = .8,
+          opacity = .8,
+          stroke = TRUE,
+          radius = 60000,
+          popup = ~contentagg,
+          #color = ~colorNumeric("Viridis", totalcount)(totalcount))
+          color = ~atlaspal(labels),
+          weight = 1,
+          #dashArray = "3",
+          fillColor = ~atlaspal(labels)
+        ) %>% 
+        addLegend("bottomright", pal = atlaspal, values = cats_df$labels, labels = cats_df$labels,
+                  title = "Activity",
+                  opacity = 1) 
+})
+
+
+```
+<center>
+Staff presented information, networked with colleagues, researchers, and grant recipients, and learned the latest research at more than 120 events (mapped above) in the U.S. and abroad.   
+  
+  
+</center>   
+
+
+TM’s Grants Division (Grants) acted as a model for USDA grants administration. The 2018 Farm Bill awarded TM with administration for [9 programs ](https://www.ams.usda.gov/sites/default/files/media/AMSGrantOpportunitiesFactsheet.pdf): the Federal-State Market Improvement Program (FSMIP), Farmers Market Promotion Program (FMPP), Local Food Promotion Program (LFPP), Dairy Business Innovation (DBI) Initiatives, Sheep Production and Marketing Grant Program (SPMGP), Specialty Crop Multistate Program (SCMP), and Specialty Crop Block Grant Program (SCBGP), cumulatively amounting to $114 million. These programs support projects by businesses, researchers, and state agencies in diverse sectors including local and regional food marketing, specialty crops, dairy, maple syrup, and sheep.   
+
+```{r fig.align="center", out.width = "100%", echo = FALSE, fig.cap="Grants funded projects spanning many important agricultural issues, including crop disease, food safety, aggregation, and marketing and promotion. Shown above are words mentioned most, or appear above in larger text and proportional to the total funding, in project titles for SCBGP (blue), FMPP (teal), LFPP (bronze), SCMP (pine green), and FSMIP (red) ongoing projects."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_grants_wordcloud.png")
+
+```
+  
+  
+TM has been recognized as a grants administration leader, and participated in the Presidential Management Agenda (PMA) and USDA response to the Government Accountability (GAO) audit recommendations for improved grants administration standards across the federal government. The Office of Management and Budget (OMB) acknowledged TM Grants’ risk assessment tool as the basis for implementation governmentwide. Working to fulfill these standards, TM developed a statement of work to standardize evaluation of AMS grant programs, track data, and reduce recipients’ administrative burden. Additionally, in order to cast a vision and steps to achieve it, TM developed 3-year strategic plans and annual operating plan.  
+
+In order to improve the transparency and accountability of its grant programs, TM completed or published evaluation of its three largest programs and entered into agreements to standardize program performance measures in coordination with state departments of agriculture and program customers. The cooperative agreement, conducted in partnership with Auburn University, evaluated the Federal State Marketing Improvement Program (FSMIP). Auburn University found that FSMIP uniquely funds early-stage market research and development to explore potential high-value markets. Seventy-three (73) percent of projects conducted basic market research, 12% improved production, and 15% both. All projects reported producing publications, tools for stakeholders, and marketing products for the academic, industry, and public sectors. In FY2019, two of TM’s previous evaluations, [Farmers Market and Local Food Promotion Program](https://krex.k-state.edu/dspace/handle/2097/39626) and [Specialty Crop Block Grant Program](https://stemedhub.org/publications/3/1), were also made publicly available for grant recipients and researchers to understand best practices and the ways that programs advanced agricultural research and local and regional food systems (see Figure 10 for full list of published studies). 
+
+Additionally, TM initiated a contract with Grant Thornton (GT) and a cooperative agreement with NASDA Foundation standardize grant performance measures in coordination with the state departments of agriculture and specialty crop stakeholders. In order to maximize the impact of the evaluation, TM expanded the evaluation to standardize measures for all AMS grant programs. As part of the evaluation, TM and NASDA Foundation conducted feedback sessions with program customers in 5 U.S. regions. The analysis by the third-party evaluator and feedback showed to program customers that AMS is adapting programs to suit customer needs while continuing to align with authorizing legislation, as well as supporting customers to more accurately report program impacts.  
+
+### Leading People
+
+FY2019 was a banner year for staff expansion and development in TM as the program prioritized connecting staff to opportunities, like making available new positions and promoting training opportunities, in order to retain staff and advance their careers. TM hired 14 people in in FY 2019. This allowed for the acquisition of new talent, increased ability to manage AMS’ expanded grants program portfolio more efficiently and coordinate marketing services efforts, and increase agricultural transport research and publications. New employees covered various parts of TM and included 8 grants management specialists and team lead, 1 management and program analyst, 3 economists, and 1 transportation editor. New staff were selected from diverse sources and including summer internship programs, Presidential Management Fellows, USDA National Institute of Food and Agriculture, USDA Food and Nutrition Service, veterans, and returning Peace Corps volunteers.  
+
+```{r echo=FALSE, out.width="100%", fig.align='center', fig.cap="Figure: TM took on many talented staff in 2019, and hosted a fun team introduction meeting, which included a tour of Mt. Vernon in Virginia."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_gd.png")
+```
+
+```{r echo=FALSE, out.width="100%", fig.align='center', fig.cap="DC area Transportation team staff (left) and Marketing staff (right), who serve economic and food business technical expertise for USDA customers."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_tsd%20msd.png")
+```
+
+TM also promoted career advancement for staff through special projects and training opportunities. Grants specialists took advantage of extended training in the use of the GrantSolutions Application Review Module (ARM) used by U.S. Department of Health and Human Services grant programs. Other staff members participated in a project led by USDA’s Office of the Chief Financial Officer related to the President’s Management Agenda CAP Goal 8 to improve results-oriented accountability for grants, and Government Accountability Office (GAO) audit recommendation for improving the Federal grants management workforce. This helped staff gain awareness of the executive branch role in grants program administration.  
+
+TM also encouraged staff to participate in professional training and development, including in grants management, USDA Leadership, Education, and Development (LEAD), Blacks in Government (BIG) Annual National Training Institute, and the Association for Information and Image Management (AIIM).  
+
+TM strives to maintain a cohesive staff and regularly holds events, like the annual holiday event, team building, and farmers market lunches and birthday celebrations, to provide staff with opportunities to interact and get to know each other better. 
+
+```{r echo=FALSE, out.width="100%", fig.align='center', fig.cap="TM also manages the USDA farmers market, led by Kim Spriggs (wearing gray, in center) and Toiayna Thompson (not pictured). TM staff lunched together during Pollinator Week. Farmers market singers strumming their guitars and booths with enthusiastic volunteers telling people about butterflies and bees – how wondrous and warm, summer’s glade!"}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_TM FM picnic.png")
+```
+<style>
+div.blue { background-color:#e6f0ff; border-radius: 5px; padding: 5px;}
+</style>
+<div class = "blue">
+<center>
+“Appreciation is a wonderful thing:  
+It makes what is excellent in others belong to us as well.” - Voltaire  
+</div>   
+</center>     
+  
+  
+
+### Business Acumen
+
+TM possesses a high level of expertise in specific business areas within AMS and the Department overall. This is evidenced by its excellent administration of 9 grant programs totaling $114 million, despite shortages in staffing and funding. TM ensured compliance and completion of 130 grant agreements, and 14 site visits to support customers maintain compliance. In FY2019, TM announced 8 Requests for Applications for the 9 programs, and facilitated application review, announcements, and responses to questions from program customers.  
+
+After facing staff shortages and diminished administrative funding provided in the Farm Bill in 2018, TM found a clause within the legislation that ultimately allowed it to use funds to cover the administrative costs of seven grants management specialists. The division extended training opportunities for grants specialists in the use of the GrantSolutions Application Review Module (ARM) used by U.S. Department of Health and Human Services grant programs, and implemented the module in 2019, which streamlined grant program competitive review, saving AMS over $30,000.  
+
+Under TM’s management, the USDA Farmers Market achieved full capacity at 34 vendors from 40 applicants, including 10 farmers, growers, and ranchers, and 22 small businesses from within the Chesapeake Bay region. The farmers market, USDA’s “living laboratory”, has helped to incubate many new food businesses. In this spirit, market staff incorporated many farmers market best practices to draw customers, like packing market days with talented local entertainers, themed markets like Pollinator Week for USDA’s NRCS and National Agriculture Library to share information about bees and butterflies, a Vietnam War Commemoration, and National Egg Day or World Milk Day. At the center of the market, staff hosted VegU (Veggie University), where as part of featuring particular fruits and vegetables to customers, they plopped raspberries into parfaits, grilled pineapples, poured watermelon fresca, and sautéed cherry tomatoes and olives. XX% of customers who had never tried the featured veggie reported wanting to purchase it. Each market, vendors would often donate more than 300 total pounds of produce to DC Community Kitchens, a local nonprofit.  
+
+TM highlighted the program’s business acumen through weekly updates to the AMS Administrator and by producing a variety of marketing and educational materials. These included talking points, briefing papers, situational correspondence, and budget information upon request.
+
+```{r pivotgrants, fig.align="center", out.width="100%",echo = FALSE, fig.cap="Funding for new and existing grant programs administered by TM."}
+
+renderRpivotTable({
+    #aggregate further with combination of agg programs selected         
+    agggroup <- gd_funding  %>% mutate(`Number Projects` = 1) %>% 
+      gather(key = "key", value = "value", Funding,`Number Projects`)
+    rpivotTable(data = agggroup, rows = c("program_name","key"), 
+                cols = "year", 
+                vals = "value", 
+                aggregatorName = "Integer Sum", 
+                rendererName = "Table"
+      #          inclusions = list( key = list("Funding")),
+      #          height="500px"
+    )
+    
+  })
+
+```
+<center>
+Funding and number of projects for new and existing grant programs administered by TM. SCBGP and FMLFPP were the two largest programs. 2016 Acer and FSMIP numbers not shown (author still confirming). 2019 numbers do not yet include numbers for FSMIP, DBI, RFSP, and SCMP, whose application decisions had not yet be announced at this report's publication.   
+  
+  
+</center>  
+
+
+### Building Coalitions
+
+TM also worked collaboratively by providing technical services and guidance to farmer and ag transport leaders, researchers, and industry representatives in order to help American farmers market and move product domestically and abroad.   
+
+To promote agricultural transport, TM met with industry grain, biofuel, rail car, and Federal representatives at Surface Transportation Board regulatory meetings in order to plan on increasing the efficiency and fairness of the American rail transport system. Additionally, TM worked with agricultural trucking representatives, other federal agencies, and the USDA Secretary to gather feedback and provide guidance to the Office of Management and Budget on new rules to improve safety for drivers of commercial motor vehicles as well as track and make available data on commercial driving and off-duty time. TM also co-sponsored seven workshops to share expertise on ocean, rail and truck issues, for agricultural shippers and exporters in California, Georgia, Idaho, Minnesota, Missouri, and Oregon.  
+
+TM also delivered marketing and architectural technical expertise in the multi-federal collaboration Local Food, Local Places to support local community leaders build up their local food systems, the majority of rural areas with under 25,000 people. Services included architectural design to workshops on direct farm market operations, business models, and federal resources.  
+
+To increase the impact of AMS grants for agricultural research, production, and marketing, TM collaborated with the Office of Chief Financial Officer (OCFO) to help meet the Presidential goal for grants accountability and delivery of results. TM entered into agreements with the National Association of State Departments of Agriculture (NASDA) Foundation and Grant Thornton to seek feedback from grant recipients and improve and standardize program administration.   
+
+```{r echo=FALSE, out.width="100%", fig.align='center', fig.cap="TM Deputy Administrator Karla Whalen and NASDA Foundation’s Lisa Benson ask state departments of agriculture representatives to provide their feedback on performance measures for the Specialty Crop Block Grant Program (SCBGP). Asking AMS customers directly helped to ensure that measures developed fit their needs, while also highlighting the national impact of SCBGP marketing, research, and education projects."}
+knitr::include_graphics("https://raw.githubusercontent.com/jainanian/TMannualreport/master/photo_karla lisa nasdaf.png")
+```
+
+### Results Driven
+
+TM took a high-level approach to improving program management and achieving results across teams, in FY2019. The program provided technical expertise and data analyses for the transportation and marketing industry, researchers, and grant recipients. TM staff includes 8 economists, 6 agricultural marketing specialists, 1 architect, and 20 grants management specialists who provide crucial data analyses, technical assistance, and administrative and regulatory guidance to industry leaders, local communities and individual businesses, universities, and departments of agriculture.  
+
+Utilizing the broad range of talent on its staff, TM Transportation Services Division launched the first [Ag Transport Open Data Platform](https://agtransport.usda.gov/), allowing transportation data to be easier accessed and analyzed for industry and researchers. The platform registered 3,000 unique users, 6,400 unique site visits, and 29,000 pageviews, with usage expected to double next year. Additionally, Transportation released 10+ weekly, quarterly, and periodically datasets and reports, which gave critical support for farmers to move their products.  
+
+TM Grants and Marketing Services divisions also utilized the diverse talent pool across the program to make available technical expertise and sharing of best practices with customers. This was evidenced by their leadership contributions to the cross-federal Local Food, Local Places initiative which targeted shared resources to local communities. TM also convened the Specialty Crop Block Grant Program (SCBGP) Summit, attended by 37 state department of agriculture coordinators. Staff presented pertinent program information at more than 7 conferences or workshops in FY2019, where they met grant recipients and colleagues and learned the latest research at more than 120 events domestically and internationally. TM’s Marketing staff delivered 47 architectural design projects, processed 1,800 information requests and updates to its 3 local foods directories, and presented at 30 online and in-person workshops to more than 1500 people.     
+
+In order to accelerate development of efficient and competitive agricultural marketing and transportation systems, TM invested nearly $1.5 million in the execution of 18 cooperative agreements (CAs). These CAs studied rural infrastructure needs, food safety and Good Agricultural Practices (GAP) certification, transportation efficiency and competitiveness, as well as funded various national conferences for agricultural leaders. To illustrate the breadth of work undertaken by way of partnerships, TM also published 8 studies and summaries from previous years’ CAs (See figure below).  
+
+TM Grants sought to model federal grants administration and accountability, in FY2019. The division participated in several governmentwide initiatives to standardize grants administration and workforce support, including the Presidential Management Agenda Cross-Agency Priority for grants accountability and Government Accountability and USDA response to GAO recommendations. The division also entered into agreements with NASDA Foundation and Grant Thornton to standardize performance measures across all grant programs, and seek feedback from grant recipients, including state departments of agriculture, local and regional food businesses, industry, and research institutions. The ongoing evaluation has been successfully completed at regional sessions across the U.S., with the Midwest session taking place at the annual AMS Direct Marketing Summit and drawing more than 120 people.   
+
+<center>  
+   
+Word clouds from the titles of new projects funded by TM cooperative agreements. Most frequently mentioned words appear larger. Marketing projects focused on studying or supporting various issues, particularly food and good agricultural practices (GAP), mentioned in at least 3 projects. Transportation projects focused nearly equally on various topics, including 3 reports for corn, soybean, farm, and transportation. One Grants CA focused on facilitating stakeholder feedback on performance measures.
+</center>   
+```{r wordcloudca, fig.align="center", out.width="100%",echo = FALSE, fig.cap="Word clouds from the titles of new projects funded by TM cooperative agreements. Most frequently mentioned words appear larger. Marketing projects focused on studying or supporting various issues, particularly food and good agricultural practices (GAP), mentioned in at least 3 projects. Transportation projects focused nearly equally on various topics, including 3 reports for corn, soybean, farm, and transportation. One Grants CA focused on facilitating stakeholder feedback on performance measures."}
+inputPanel(
+  selectInput("year", label = "Fiscal Year started:",
+              choices = (catable %>% arrange(FY))$FY %>% unique(), 
+              selected = 19, 
+              multiple = TRUE),
+  sliderTextInput(inputId = "scalewordchart",
+                 label = "Scale/resize words in chart", 
+                 choices = 1:150, 
+                 selected = 15
+  ),
+  sliderTextInput(inputId = "numwords",
+                 label = "Minimum word mentions in Project Title", 
+                 choices = 1:100, 
+                 selected = 2
+  ),
+    sliderTextInput(inputId = "maxwords",
+                 label = "Maximum word mentions in Project Title", 
+                 choices = 1:100, 
+                 selected = 100
+  )
+)
+
+renderPlot({
+catable %>% 
+    filter(counter >= input$numwords & counter <= input$maxwords & FY %in% input$year) %>%
+    ggplot(aes(label = word, size = counter, color = funding)) + 
+	    geom_text_wordcloud_area() + 
+	    scale_size_area(max_size = input$scalewordchart) +
+      theme_minimal()+  
+	    facet_wrap(~Division) +
+	    scale_color_continuous(aes(x = funding)) + 
+      theme(strip.text = element_text(size = 20))
+})
+
+
+```
+  
+  
+    
+<center>
+  
+  
+Reports published in FY2019, as the result of funding from previous years’ AMS cooperative agreements. These reports advance the understanding by researchers, industry, and grant recipients. For example,, after publication of the Evaluation of the 2013 Specialty Crop Block Grant, TM Grants presented results to state ag coordinators at the SCBGP conference, sparking high interest among attendees for best practice models and lessons learned. The study has accumulated 169 total views and 44 downloads. 
+</center>   
+```{r datatableca_publish, fig.align="center", height = "1000px", echo = FALSE, fig.cap= "Reports published in FY2019, as the result of funding from previous years’ AMS cooperative agreements. These reports advance the understanding by researchers, industry, and grant recipients. For example,, after publication of the Evaluation of the 2013 Specialty Crop Block Grant, TM Grants presented results to state ag coordinators at the SCBGP conference, sparking high interest among attendees for best practice models and lessons learned. The study has accumulated 169 total views and 44 downloads."}
+renderDataTable({
+  capublish %>% 
+    select(Division,ProjTitle,Description,`Link to report`) %>% 
+    mutate(`Link to report` = 
+             paste0("<a href='",`Link to report` ,"'>",`Link to report` ,"</a>")
+             )
+},
+  class = 'display nowrap compact', 
+  selection = "single",
+  filter = "top", 
+  rownames = FALSE, 
+escape = FALSE,
+options = list(
+  scrollX = TRUE, 
+  autoWidth = TRUE,
+  paging = TRUE,
+  columnDefs = list(
+                   list(
+                     targets = c(2),
+                     #shortens the length of the descriptions column
+                     render = JS(
+                       "function(data, type, row, meta) {",
+                       "return type === 'display' && data.length > 6 ?",
+                       "'<span title=\"' + data + '\">' + data.substr(0, 6) + '...</span>' : data;",
+                       "}")
+                   )
+  )
+  )
+)
+
+```
+
+<center>
+  
+  
+Cooperative agreement funding and number of projects for different TM divisions to accelerate understanding in agricultural transportation and marketing. Drag and drop fields to summarize data differently.        
+
+</center>   
+
+
+```{r pivotca, fig.align="center", out.width="100%",echo = FALSE, fig.cap="Funding for new and existing cooperative agreements administered by TM."}
+
+renderRpivotTable({
+    #aggregate further with combination of agg programs selected         
+    ca_tablefundingsum <- ca_tablefunding  %>% mutate(`Number Projects` = 1) %>% 
+      select(`Agreement Number`, ProjTitle, Description, `Total Budget`, `Vendor Name`,FY, Division, FY_publish,`Number Projects`) %>%
+      gather(key = "key", value = "value", `Total Budget`,`Number Projects`)
+    rpivotTable(data = ca_tablefundingsum, rows = c("Division","key"), 
+                cols = "FY", 
+                vals = "value", 
+                aggregatorName = "Integer Sum", 
+                rendererName = "Table"
+      #          inclusions = list( key = list("Funding")),
+      #          height="500px"
+    )
+    
+  }
+)
+
+```
+
+
+## Looking Ahead to FY2020  
+
+**Direct Marketing Summit**  
+The Transportation and Marketing Program (TM) will host the 2019 National Direct Agricultural Marketing Summit, in Rosemont, Illinois. Approximately 300 people are expected to attend the summit where TM will assemble stakeholders, offer technical assistance, and facilitate partnerships and the efficient sharing of technology and resources for key stakeholders in local and regional agricultural markets. AMS grant recipients, agricultural producers and food businesses, institutions, researchers, and local and state governments will be represented in these stakeholder groups.   
+   
+**Federal Environmental Symposium at the National Institutes of Health**   
+The Farmers Market staff will present: “Federal Food Initiatives and Efforts” during the Federal Environmental Symposium at the National Institutes of Health, Bethesda Campus. The presentation covers the history of the Farmers Market and local sourcing requirements for vendors. Staff will also discuss the outreach and education program that is offered through VegU and the purpose of weekly highlights in Fresh This Week. They presentation will include a detailed overview of the food sustainability practices within the market, such as ordering produce from local growers, the use of biodegradable utensils, natural cleaners, reusable items, and food donations to D.C. Central Kitchen.    
+
+### **Workshops and Training**   
+
+**Local Foods Local Places (LFLP) Workshops: Russellville, AR; Duluth, MN**  
+TM staff will be attending and providing on-site technical assistance, including architectural design assistance a host of communities as part of the multi-federal agency site-based strategic planning effort Local Foods, Local Places.   
+
+**GAP Food Safety Training**    
+TM staff will conduct training for 21 participants on GAP food safety fundamentals and provide information on marketing opportunities.  The training will include a mock audit on a local farm.  In attendance will be growers and Agricultural Extension educators representing the 1890 historically black land-grant universities.  This training is the second in a series of three scheduled to be completed by the end of fall 2019. It will be held in Tuskegee, Alabama.  
+
+**EzFedGrants Training**  
+TM grants staff and the USDA OCFO ezFedGrants staff will host a training session on registering for ezFedGrants. The session will cover how to register for an ezFedGrants account, submitting payment requests, and other related topics. All grants management specialists and their assigned grantees are invited to attend the training.  
+
+### **Partnerships**  
+**The Iowa State University**  
+TM staff will attend and present at a workshop organized by The Iowa State University Food Systems cooperative agreement team. The objective of the workshop is to assess existing local food systems and related marketing practices curriculum to determine core competencies. Roughly 30 national partners will participate in the workshop including: The North American Food Systems Network, North Carolina A&T – eXtension Foundation, North Carolina State University, the Wallace Center at Winrock International, and the Community Food Systems and Local Food Leader cohort from Iowa State. The workshop will be held in Chicago.   
+
+**National Farm Viability Conference**  
+AMS staff will present at the National Farm Viability Conference, in Red Wing, MN. The conference focuses on strengthening farm sustainability and building resilient food systems. AMS staff will collaborate with other funders to increase awareness of the Federal grant programs that benefit small/mid-size agricultural producers, value-added manufacturers, and food distributors involved in strengthening local/regional food supply chains.  
+
+**Annual Waterways Symposium**   
+TM staff members will attend the Annual Waterways Symposium in Pittsburgh, PA. One staff member will present portions of a joint AMS-Informa Agribusiness Consulting report on the importance of inland waterways to grain transportation during a panel on waterborne commerce. Symposium attendees will include industry stakeholders, representatives from government agencies, and elected officials.  
+
+## Appendix
+
+Data: 
+Script: 
+Github repo: 
+
+```{r results="asis", include = FALSE, echo = FALSE}
+cat("
+<style>
+p.caption {
+  font-size: 0.9em;
+  font-style: italic;
+  color: grey;
+  margin-right: 10%;
+  margin-left: 10%;  
+  text-align: justify;
+}
+</style>
+")
+```
+
